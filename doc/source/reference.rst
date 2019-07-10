@@ -115,12 +115,14 @@ correctly.
 GeoDataFrame
 ------------
 
-A ``GeoDataFrame`` is a tablular data structure that contains a column
+A ``GeoDataFrame`` is a tabular data structure that contains a column
 called ``geometry`` which contains a `GeoSeries``.
 
 Currently, the following methods are implemented for a ``GeoDataFrame``:
 
 .. automethod:: geopandas.GeoDataFrame.from_file
+
+.. automethod:: geopandas.GeoDataFrame.from_features
 
 .. automethod:: geopandas.GeoDataFrame.from_postgis
 
@@ -130,7 +132,15 @@ Currently, the following methods are implemented for a ``GeoDataFrame``:
 
 .. automethod:: geopandas.GeoDataFrame.to_json
 
+.. automethod:: geopandas.GeoDataFrame.iterfeatures
+
 .. automethod:: geopandas.GeoDataFrame.plot
+
+.. automethod:: geopandas.GeoDataFrame.set_geometry
+
+.. automethod:: geopandas.GeoDataFrame.dissolve
+
+.. automethod:: geopandas.GeoDataFrame.explode
 
 .. autoattribute:: geopandas.GeoDataFrame.__geo_interface__
 
