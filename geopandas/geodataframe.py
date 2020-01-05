@@ -5,8 +5,9 @@ import pandas as pd
 from pandas import DataFrame, Series
 
 from shapely.geometry import mapping, shape
+from shapely.geometry.base import BaseGeometry
 
-from geopandas.array import GeometryArray, from_shapely
+from geopandas.array import GeometryArray, from_shapely, _isna
 from geopandas.base import GeoPandasBase, is_geometry_type
 from geopandas.geoseries import GeoSeries
 import geopandas.io
@@ -33,6 +34,30 @@ def _ensure_geometry(data):
         else:
             out = from_shapely(data)
             return out
+
+
+def _check_all_geometry(data):
+    """
+    Check if the data could be of geometry dtype or converted to it.
+    """
+    if len([data]) == 0:
+        return False
+
+    data = np.asarray(data)
+
+    try:
+        for g in data:
+            if isinstance(g, BaseGeometry):
+                continue
+            elif hasattr(g, "__geo_interface__"):
+                continue
+            elif _isna(g):
+                continue
+            else:
+                return False
+        return True
+    except Exception:
+        return False
 
 
 class GeoDataFrame(GeoPandasBase, DataFrame):
@@ -94,6 +119,16 @@ class GeoDataFrame(GeoPandasBase, DataFrame):
             object.__setattr__(self, attr, val)
         else:
             super(GeoDataFrame, self).__setattr__(attr, val)
+
+    def __setitem__(self, key, value):
+        if key == self._geometry_column_name:
+            if _check_all_geometry(value):
+                value = _ensure_geometry(value)
+
+        # if _check_all_geometry(value):
+        #     value = _ensure_geometry(value)
+
+        super(DataFrame, self).__setitem__(key, value)
 
     def _get_geometry(self):
         if self._geometry_column_name not in self:
