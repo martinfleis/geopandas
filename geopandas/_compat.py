@@ -150,14 +150,3 @@ try:
     HAS_RTREE = True
 except ImportError:
     HAS_RTREE = False
-
-# -----------------------------------------------------------------------------
-# matplotlib compat
-# -----------------------------------------------------------------------------
-
-try:
-    import matplotlib
-
-    MATPLOTLIB_340 = str(matplotlib.__version__) > LooseVersion("3.3.2")
-except ImportError:
-    MATPLOTLIB_340 = None

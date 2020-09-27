@@ -7,8 +7,6 @@ import geopandas
 
 from distutils.version import LooseVersion
 
-from . import _compat as compat
-
 
 def deprecated(new):
     """Helper to provide deprecation warning."""
@@ -65,10 +63,11 @@ def _expand_kwargs(kwargs, multiindex):
     it (in place) to the correct length/formats with help of 'multiindex', unless
     the value appears to already be a valid (single) value for the key.
     """
+    import matplotlib
     from matplotlib.colors import is_color_like
     from typing import Iterable
 
-    if compat.MATPLOTLIB_340:
+    if str(matplotlib.__version__) > LooseVersion("3.3.2"):
         single_vals = ["marker"]
     else:
         single_vals = ["marker", "alpha"]

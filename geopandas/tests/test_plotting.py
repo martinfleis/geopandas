@@ -1,3 +1,4 @@
+from distutils.version import LooseVersion
 import itertools
 import warnings
 
@@ -19,13 +20,14 @@ from shapely.geometry import (
 
 from geopandas import GeoDataFrame, GeoSeries, read_file
 from geopandas.datasets import get_path
-from .. import _compat as compat
 
 import pytest
 
 matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa
+
+MATPLOTLIB_340 = str(matplotlib.__version__) > LooseVersion("3.3.2")
 
 
 @pytest.fixture(autouse=True)
@@ -172,7 +174,7 @@ class TestPointPlotting:
     def test_style_kwargs_alpha(self):
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        if compat.MATPLOTLIB_340:
+        if MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2])
             np.testing.assert_array_equal(
                 [0.7, 0.2] * self.N / 2, ax.collections[0].get_alpha()
@@ -269,7 +271,7 @@ class TestPointPlotting:
     def test_multipoints_alpha(self):
         ax = self.df2.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        if compat.MATPLOTLIB_340:
+        if MATPLOTLIB_340:
             ax = self.df2.plot(alpha=[0.7, 0.2])
             np.testing.assert_array_equal(
                 [0.7, 0.2] * self.N / 2, ax.collections[0].get_alpha()
@@ -458,8 +460,16 @@ class TestLineStringPlotting:
     def test_style_kwargs_alpha(self):
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2])
+            np.testing.assert_array_equal(
+                [0.7, 0.2] * self.N / 2, ax.collections[0].get_alpha()
+            )
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df.plot(alpha=[0.7, 0.2])
 
     def test_subplots_norm(self):
         # colors of subplots are the same as for plot (norm is applied)
@@ -619,7 +629,7 @@ class TestPolygonPlotting:
         # alpha
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        if compat.MATPLOTLIB_340:
+        if MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2])
             np.testing.assert_array_equal([0.7, 0.2], ax.collections[0].get_alpha())
         else:
@@ -723,8 +733,14 @@ class TestPolygonPlotting:
     def test_multipolygons_alpha(self):
         ax = self.df2.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if MATPLOTLIB_340:
             ax = self.df2.plot(alpha=[0.7, 0.2])
+            np.testing.assert_array_equal([0.7, 0.2], ax.collections[0].get_alpha())
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df2.plot(alpha=[0.7, 0.2])
 
     def test_subplots_norm(self):
         # colors of subplots are the same as for plot (norm is applied)
@@ -869,8 +885,16 @@ class TestNonuniformGeometryPlotting:
     def test_style_kwargs_alpha(self):
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2, 0.9])
+            np.testing.assert_array_equal(
+                [0.7, 0.2, 0.9], ax.collections[0].get_alpha()
+            )
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df.plot(alpha=[0.7, 0.2, 0.9])
 
 
 class TestGeographicAspect:
