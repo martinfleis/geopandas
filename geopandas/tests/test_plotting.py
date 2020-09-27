@@ -19,6 +19,7 @@ from shapely.geometry import (
 
 from geopandas import GeoDataFrame, GeoSeries, read_file
 from geopandas.datasets import get_path
+from .. import _compat as compat
 
 import pytest
 
@@ -171,8 +172,16 @@ class TestPointPlotting:
     def test_style_kwargs_alpha(self):
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if compat.MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2])
+            np.testing.assert_array_equal(
+                [0.7, 0.2] * self.N / 2, ax.collections[0].get_alpha()
+            )
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df.plot(alpha=[0.7, 0.2])
 
     def test_legend(self):
         with warnings.catch_warnings(record=True) as _:  # don't print warning
@@ -260,8 +269,16 @@ class TestPointPlotting:
     def test_multipoints_alpha(self):
         ax = self.df2.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if compat.MATPLOTLIB_340:
             ax = self.df2.plot(alpha=[0.7, 0.2])
+            np.testing.assert_array_equal(
+                [0.7, 0.2] * self.N / 2, ax.collections[0].get_alpha()
+            )
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df2.plot(alpha=[0.7, 0.2])
 
     def test_categories(self):
         self.df["cats_object"] = ["cat1", "cat2"] * 5
@@ -602,8 +619,14 @@ class TestPolygonPlotting:
         # alpha
         ax = self.df.plot(alpha=0.7)
         np.testing.assert_array_equal([0.7], ax.collections[0].get_alpha())
-        with pytest.raises(TypeError):  # no list allowed for alpha
+        if compat.MATPLOTLIB_340:
             ax = self.df.plot(alpha=[0.7, 0.2])
+            np.testing.assert_array_equal([0.7, 0.2], ax.collections[0].get_alpha())
+        else:
+            with pytest.raises(
+                TypeError
+            ):  # no list allowed for alpha for matplotlib < 3.4.0
+                ax = self.df.plot(alpha=[0.7, 0.2])
 
     def test_legend_kwargs(self):
 

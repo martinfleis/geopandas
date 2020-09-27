@@ -7,6 +7,8 @@ import geopandas
 
 from distutils.version import LooseVersion
 
+from . import _compat as compat
+
 
 def deprecated(new):
     """Helper to provide deprecation warning."""
@@ -66,6 +68,11 @@ def _expand_kwargs(kwargs, multiindex):
     from matplotlib.colors import is_color_like
     from typing import Iterable
 
+    if compat.MATPLOTLIB_340:
+        single_vals = ["marker"]
+    else:
+        single_vals = ["marker", "alpha"]
+
     for att, value in kwargs.items():
         if "color" in att:  # color(s), edgecolor(s), facecolor(s)
             if is_color_like(value):
@@ -78,7 +85,7 @@ def _expand_kwargs(kwargs, multiindex):
                 and isinstance(value[1], Iterable)
             ):
                 continue
-        elif att in ["marker", "alpha"]:
+        elif att in single_vals:
             # For these attributes, only a single value is allowed, so never expand.
             continue
 
