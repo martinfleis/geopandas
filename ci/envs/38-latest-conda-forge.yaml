@@ -1,14 +1,14 @@
 name: test
 channels:
-  - defaults
+  - conda-forge
 dependencies:
-  - python=3.7.3
+  - python=3.8
   # required
   - pandas
   - shapely
   - fiona
   - pyproj
-  - geos
+  - pygeos
   # testing
   - pytest
   - pytest-cov
@@ -18,11 +18,14 @@ dependencies:
   - rtree
   - matplotlib
   - descartes
-  #- geopy
+  - mapclassify
+  - geopy
+  # installed in tests.yaml, because not available on windows
+  # - postgis
   - SQLalchemy
+  - psycopg2
   - libspatialite
+  - geoalchemy2
   - pyarrow
-  - pip:
-    - geopy
-    - mapclassify
-    - git+https://github.com/pygeos/pygeos.git
+  # doctest testing
+  - pytest-doctestplus
